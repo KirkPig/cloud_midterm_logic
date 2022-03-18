@@ -1,9 +1,30 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
+
+func NewSQLConn() *gorm.DB {
+
+	str_conn := fmt.Sprintf("host=myhost port=myport user=gorm dbname=gorm password=mypassword")
+	conn, err := gorm.Open("postgres", str_conn)
+
+	if err != nil {
+		log.Println("connection error")
+		log.Fatalln(err.Error())
+	}
+
+	log.Println("db connected!! 🎉")
+
+	return conn
+
+}
 
 func main() {
 

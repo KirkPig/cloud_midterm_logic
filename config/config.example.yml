@@ -1,0 +1,6 @@
+postgres:
+  host:
+  port: 5432
+  user: postgres
+  password:
+  dbname: message_sync

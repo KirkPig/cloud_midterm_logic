@@ -24,16 +24,16 @@ def init_db_if_not_exists():
 
 def fetch_update(url: str) -> dict:
     with open(METADATA_FILE, "r") as f:
-        last_sync_timestamp = int(f.read())
+        last_sync = int(f.read())
 
-    r = requests.get(url, params={"last_sync_timestamp": last_sync_timestamp})
+    r = requests.get(url, params={"last_sync": last_sync})
     if r.status_code != 200:
         print("Error: %s" % r.status_code)
         sys.exit(1)
-    last_sync_timestamp = r.headers["Last-Sync"]
+    last_sync = r.headers["Last-Sync"]
 
     with open(METADATA_FILE, "w") as f:
-        f.write(str(last_sync_timestamp))
+        f.write(str(last_sync))
     return r.json()
 
 

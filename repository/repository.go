@@ -45,29 +45,34 @@ func New(config *Config) *gorm.DB {
 
 func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time.Time) error {
 
-	return r.sess.Create(&Message{
-		uuid:              uuid,
-		author:            author,
-		message:           message,
-		likes:             likes,
-		lastUpdateAuthor:  &tm,
-		lastUpdateMessage: &tm,
-		lastUpdateLikes:   &tm,
-		isDeleted:         false,
-	}).Error
+	fmt.Print(uuid, author, message, tm)
+
+	m := Message{
+		Uuid:              uuid,
+		Author:            author,
+		Message:           message,
+		Likes:             likes,
+		LastUpdateAuthor:  &tm,
+		LastUpdateMessage: &tm,
+		LastUpdateLikes:   &tm,
+		IsDeleted:         false,
+		LastUpdateDelete:  &tm,
+	}
+
+	return r.sess.Model(m).Create(&m).Error
 
 }
 
-func (r *Repository) EditMessageAuthor(uuid, author, message *string, likes *int, tm time.Time) error {
+func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm time.Time) error {
 
 	var err error
 
 	if author != nil {
 		err = r.sess.Where(&Message{
-			uuid: *uuid,
+			Uuid: *uuid,
 		}).Update(&Message{
-			author:           *author,
-			lastUpdateAuthor: &tm,
+			Author:           *author,
+			LastUpdateAuthor: &tm,
 		}).Error
 
 		if err != nil {
@@ -77,10 +82,10 @@ func (r *Repository) EditMessageAuthor(uuid, author, message *string, likes *int
 
 	if message != nil {
 		err := r.sess.Where(&Message{
-			uuid: *uuid,
+			Uuid: *uuid,
 		}).Update(&Message{
-			message:           *message,
-			lastUpdateMessage: &tm,
+			Message:           *message,
+			LastUpdateMessage: &tm,
 		}).Error
 
 		if err != nil {
@@ -90,10 +95,10 @@ func (r *Repository) EditMessageAuthor(uuid, author, message *string, likes *int
 
 	if likes != nil {
 		err := r.sess.Where(&Message{
-			uuid: *uuid,
+			Uuid: *uuid,
 		}).Update(&Message{
-			likes:           *likes,
-			lastUpdateLikes: &tm,
+			Likes:           *likes,
+			LastUpdateLikes: &tm,
 		}).Error
 
 		if err != nil {
@@ -108,9 +113,9 @@ func (r *Repository) EditMessageAuthor(uuid, author, message *string, likes *int
 func (r *Repository) DeleteMessage(uuid string, tm time.Time) error {
 
 	return r.sess.Where(&Message{
-		uuid: uuid,
+		Uuid: uuid,
 	}).Update(&Message{
-		isDeleted: true,
+		IsDeleted: true,
 	}).Error
 
 }

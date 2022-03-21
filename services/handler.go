@@ -22,10 +22,21 @@ func (h *Handler) AddNewMessageHandler(c *gin.Context) {
 
 	var req NewMessageRequest
 
-	if err := c.ShouldBindJSON(req); err != nil {
-		c.JSON(409, gin.H{})
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(409, gin.H{
+			"log": err.Error(),
+		})
 		return
 	}
+
+	if err := h.service.AddMessage(req); err != nil {
+		c.JSON(409, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(201, gin.H{})
 
 }
 
@@ -33,17 +44,13 @@ func (h *Handler) EditMessageHandler(c *gin.Context) {
 
 	var req EditMessageRequest
 
-	if err := c.ShouldBindJSON(req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(404, gin.H{})
 		return
 	}
 
-	uuid := c.Param("uuid")
-
 }
 
 func (h *Handler) DeleteMessageHandler(c *gin.Context) {
-
-	uuid := c.Param("uuid")
 
 }

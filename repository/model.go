@@ -3,12 +3,13 @@ package repository
 import "time"
 
 type Message struct {
-	uuid              string     `gorm:"column:uuid;primary_key"`
-	author            string     `gorm:"column:author"`
-	message           string     `gorm:"column:message"`
-	likes             int        `gorm:"column:likes"`
-	lastUpdateAuthor  *time.Time `gorm:"column:last_update_author"`
-	lastUpdateMessage *time.Time `gorm:"column:last_update_message"`
-	lastUpdateLikes   *time.Time `gorm:"column:last_update_likes"`
-	isDeleted         bool       `gorm:"column:is_deleted"`
+	Uuid              string     `gorm:"column:uuid"`
+	Author            string     `gorm:"column:author"`
+	Message           string     `gorm:"column:message"`
+	Likes             int        `gorm:"column:likes"`
+	LastUpdateAuthor  *time.Time `gorm:"column:lastUpdateAuthor"`
+	LastUpdateMessage *time.Time `gorm:"column:lastUpdateMessage"`
+	LastUpdateLikes   *time.Time `gorm:"column:lastUpdateLikes"`
+	IsDeleted         bool       `gorm:"column:isDeleted"`
+	LastUpdateDelete  *time.Time `gorm:"column:lastUpdateDelete"`
 }

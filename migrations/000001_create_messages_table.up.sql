@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "messages"
 (
-    "uuid"              TEXT NOT NULL,
+    "uuid"              VARCHAR(100) NOT NULL,
     "author"            TEXT NOT NULL,
     "message"           TEXT NOT NULL,
     "likes"             TEXT NOT NULL,

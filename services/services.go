@@ -16,22 +16,59 @@ func NewService(db repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CheckUpdate(lastTM time.Time) ([]UpdateQuery, error) {
-	return nil, nil
+func (s *Service) CheckUpdate(lastTM time.Time) ([]UpdateQuery, time.Time, error) {
+
+	tm := time.Now().UTC()
+	msgs, err := s.db.QueryUpdate(lastTM.UTC())
+
+	if err != nil {
+		return nil, tm, err
+	}
+
+	var up []UpdateQuery
+
+	for _, e := range msgs {
+
+		println(e.Author, " ", e.Message, " ", e.Likes, " ", e.IsDeleted)
+
+		k := UpdateQuery{}
+		k.Uuid = e.Uuid
+
+		if e.IsDeleted {
+			k.IsDelete = e.IsDeleted
+		}
+
+		if lastTM.UTC().Unix() < e.LastUpdateAuthor.UTC().Unix() {
+			k.Author = e.Author
+		}
+
+		if lastTM.UTC().Unix() < e.LastUpdateMessage.UTC().Unix() {
+			k.Message = e.Message
+		}
+
+		if lastTM.UTC().Unix() < e.LastUpdateLikes.UTC().Unix() {
+			k.Likes = e.Likes
+		}
+
+		up = append(up, k)
+
+	}
+
+	return up, tm, nil
 }
 
-func (s *Service) AddMessage(req NewMessageRequest) (time.Time, repository.Message, error) {
+func (s *Service) AddMessage(req NewMessageRequest) (time.Time, error) {
 
-	tm := time.Now()
+	tm := time.Now().UTC()
 
-	msg, err := s.db.NewMessage(req.Uuid, req.Author, req.Message, req.Likes, tm)
+	err := s.db.NewMessage(req.Uuid, req.Author, req.Message, req.Likes, tm)
 
-	return tm, msg, err
+	return tm, err
 }
 
-func (s *Service) EditMessage(uuid string, req EditMessageRequest) error {
+func (s *Service) EditMessage(uuid string, req EditMessageRequest) (time.Time, error) {
 
-	tm := time.Now()
+	tm := time.Now().UTC()
 	var author *string
 	var message *string
 	var likes *int
@@ -52,14 +89,14 @@ func (s *Service) EditMessage(uuid string, req EditMessageRequest) error {
 		likes = &req.Likes
 	}
 
-	return s.db.EditMessage(&uuid, author, message, likes, tm)
+	return tm, s.db.EditMessage(&uuid, author, message, likes, tm)
 
 }
 
-func (s *Service) DeleteMessage(uuid string) error {
+func (s *Service) DeleteMessage(uuid string) (time.Time, error) {
 
-	tm := time.Now()
+	tm := time.Now().UTC()
 
-	return s.db.DeleteMessage(uuid, tm)
+	return tm, s.db.DeleteMessage(uuid, tm)
 
 }

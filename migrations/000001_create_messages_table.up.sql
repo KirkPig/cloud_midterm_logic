@@ -4,10 +4,10 @@ CREATE TABLE IF NOT EXISTS "messages"
     "author"            TEXT NOT NULL,
     "message"           TEXT NOT NULL,
     "likes"             TEXT NOT NULL,
-    "lastUpdateAuthor"  TIMESTAMP NOT NULL,
-    "lastUpdateMessage" TIMESTAMP NOT NULL,
-    "lastUpdateLikes"   TIMESTAMP NOT NULL,
-    "isDeleted"         BOOLEAN NOT NULL,
-    "lastUpdateDelete"  TIMESTAMP NOT NULL,
+    "last_update_author"  TIMESTAMP NOT NULL,
+    "last_update_message" TIMESTAMP NOT NULL,
+    "last_update_likes"   TIMESTAMP NOT NULL,
+    "is_deleted"         BOOLEAN NOT NULL,
+    "last_update_delete"  TIMESTAMP NOT NULL,
     PRIMARY KEY ("uuid")
 )

@@ -2,6 +2,7 @@ package services
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,11 +19,26 @@ func NewHandler(s Service) *Handler {
 
 func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 
-	// i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
-	// if err != nil {
-	// 	c.JSON(400, gin.H{})
-	// }
-	// tm := time.Unix(i, 0)
+	i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+	tm := time.Unix(i, 0)
+
+	ups, tm, err := h.service.CheckUpdate(tm)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+
+	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
+	c.JSON(200, ups)
 
 }
 
@@ -37,7 +53,7 @@ func (h *Handler) AddNewMessageHandler(c *gin.Context) {
 		return
 	}
 
-	tm, msg, err := h.service.AddMessage(req)
+	tm, err := h.service.AddMessage(req)
 
 	if err != nil {
 		c.JSON(409, gin.H{
@@ -47,7 +63,7 @@ func (h *Handler) AddNewMessageHandler(c *gin.Context) {
 	}
 
 	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
-	c.JSON(201, msg)
+	c.JSON(201, req)
 
 }
 
@@ -63,16 +79,32 @@ func (h *Handler) EditMessageHandler(c *gin.Context) {
 	}
 
 	uuid := c.Param("uuid")
+	tm, err := h.service.EditMessage(uuid, req)
 
-	if err := h.service.EditMessage(uuid, req); err != nil {
+	if err != nil {
 		c.JSON(404, gin.H{})
 		return
 	}
 
-	c.JSON(204, gin.H{})
+	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
+	c.JSON(204, req)
 
 }
 
 func (h *Handler) DeleteMessageHandler(c *gin.Context) {
+
+	uuid := c.Param("uuid")
+
+	tm, err := h.service.DeleteMessage(uuid)
+
+	if err != nil {
+		c.JSON(404, gin.H{})
+		return
+	}
+
+	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
+	c.JSON(204, gin.H{
+		"uuid": uuid,
+	})
 
 }

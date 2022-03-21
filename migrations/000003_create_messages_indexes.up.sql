@@ -1,1 +1,1 @@
-CREATE INDEX "indLastUpMessage" ON "messages" ("lastUpdateMessage");
+CREATE INDEX "indLastUpMessage" ON "messages" ("last_update_message");

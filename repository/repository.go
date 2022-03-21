@@ -43,7 +43,7 @@ func New(config *Config) *gorm.DB {
 
 }
 
-func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time.Time) (Message, error) {
+func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time.Time) error {
 
 	m := Message{
 		Uuid:              uuid,
@@ -57,7 +57,7 @@ func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time
 		LastUpdateDelete:  &tm,
 	}
 
-	return m, r.sess.Model(m).Create(&m).Error
+	return r.sess.Model(m).Create(&m).Error
 
 }
 
@@ -139,5 +139,14 @@ func (r *Repository) DeleteMessage(uuid string, tm time.Time) error {
 		IsDeleted:        true,
 		LastUpdateDelete: &tm,
 	}).Error
+
+}
+
+func (r *Repository) QueryUpdate(tm time.Time) ([]Message, error) {
+
+	var messages []Message
+	condition := "last_update_author > ? or last_update_message > ? or last_update_likes > ? or last_update_delete > ?"
+	err := r.sess.Model(Message{}).Where(condition, tm, tm, tm, tm).Find(&messages).Error
+	return messages, err
 
 }

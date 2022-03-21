@@ -1,1 +1,1 @@
-CREATE INDEX "indLastUpLikes" ON "messages" ("lastUpdateLikes");
+CREATE INDEX "indLastUpLikes" ON "messages" ("last_update_likes");

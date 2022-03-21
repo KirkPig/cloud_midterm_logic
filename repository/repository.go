@@ -66,44 +66,67 @@ func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time
 func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm time.Time) error {
 
 	var err error
+	var old Message
+
+	r.sess.Model(Message{}).Where(&Message{
+		Uuid: *uuid,
+	}).First(&old)
 
 	if author != nil {
-		err = r.sess.Where(&Message{
-			Uuid: *uuid,
-		}).Update(&Message{
-			Author:           *author,
-			LastUpdateAuthor: &tm,
-		}).Error
 
-		if err != nil {
-			return err
+		if old.Author != *author {
+
+			err = r.sess.Model(Message{}).Where(&Message{
+				Uuid: *uuid,
+			}).Update(&Message{
+				Author:           *author,
+				LastUpdateAuthor: &tm,
+			}).Error
+
+			if err != nil {
+				return err
+			}
+
 		}
+
 	}
 
 	if message != nil {
-		err := r.sess.Where(&Message{
-			Uuid: *uuid,
-		}).Update(&Message{
-			Message:           *message,
-			LastUpdateMessage: &tm,
-		}).Error
 
-		if err != nil {
-			return err
+		if old.Message != *message {
+
+			err := r.sess.Model(Message{}).Where(&Message{
+				Uuid: *uuid,
+			}).Update(&Message{
+				Message:           *message,
+				LastUpdateMessage: &tm,
+			}).Error
+
+			if err != nil {
+				return err
+			}
+
 		}
+
 	}
 
 	if likes != nil {
-		err := r.sess.Where(&Message{
-			Uuid: *uuid,
-		}).Update(&Message{
-			Likes:           *likes,
-			LastUpdateLikes: &tm,
-		}).Error
 
-		if err != nil {
-			return err
+		if old.Likes != *likes {
+
+			err := r.sess.Model(Message{}).Where(&Message{
+				Uuid: *uuid,
+			}).Update(&Message{
+				Likes:           *likes,
+				LastUpdateLikes: &tm,
+			}).Error
+
+			if err != nil {
+				return err
+			}
+
 		}
+
 	}
 
 	return nil
@@ -112,10 +135,11 @@ func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm t
 
 func (r *Repository) DeleteMessage(uuid string, tm time.Time) error {
 
-	return r.sess.Where(&Message{
+	return r.sess.Model(Message{}).Where(&Message{
 		Uuid: uuid,
 	}).Update(&Message{
-		IsDeleted: true,
+		IsDeleted:        true,
+		LastUpdateDelete: &tm,
 	}).Error
 
 }

@@ -25,7 +25,7 @@ func main() {
 	apiHandler := services.NewHandler(*services.NewService(*repository.NewRepository(repository.New(&config.InitConfig().Postgres))))
 	api := router.Group("/api")
 	{
-		api.GET("/messages", apiHandler.UpdateMessageHandler)
+		api.GET("/messages/:timestamp", apiHandler.UpdateMessageHandler)
 		api.POST("/messages", apiHandler.AddNewMessageHandler)
 		api.PUT("/messages/:uuid", apiHandler.EditMessageHandler)
 		api.DELETE("/messages/:uuid")

@@ -1,8 +1,6 @@
 package services
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,15 +14,36 @@ func NewHandler(s Service) *Handler {
 	}
 }
 
+func (h *Handler) UpdateMessageHandler(c *gin.Context) {
+
+}
+
 func (h *Handler) AddNewMessageHandler(c *gin.Context) {
 
 	var req NewMessageRequest
 
 	if err := c.ShouldBindJSON(req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"log": "invalid request",
-		})
+		c.JSON(409, gin.H{})
 		return
 	}
+
+}
+
+func (h *Handler) EditMessageHandler(c *gin.Context) {
+
+	var req EditMessageRequest
+
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.JSON(404, gin.H{})
+		return
+	}
+
+	uuid := c.Param("uuid")
+
+}
+
+func (h *Handler) DeleteMessageHandler(c *gin.Context) {
+
+	uuid := c.Param("uuid")
 
 }

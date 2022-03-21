@@ -6,3 +6,9 @@ type NewMessageRequest struct {
 	Message string `json:"message"`
 	Likes   int    `json:"likes"`
 }
+
+type EditMessageRequest struct {
+	Author  string `json:"author"`
+	Message string `json:"message"`
+	Likes   int    `json:"likes"`
+}

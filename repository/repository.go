@@ -43,9 +43,7 @@ func New(config *Config) *gorm.DB {
 
 }
 
-func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time.Time) error {
-
-	fmt.Print(uuid, author, message, tm)
+func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time.Time) (Message, error) {
 
 	m := Message{
 		Uuid:              uuid,
@@ -59,7 +57,7 @@ func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time
 		LastUpdateDelete:  &tm,
 	}
 
-	return r.sess.Model(m).Create(&m).Error
+	return m, r.sess.Model(m).Create(&m).Error
 
 }
 

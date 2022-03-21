@@ -17,14 +17,16 @@ func NewService(db repository.Repository) *Service {
 }
 
 func (s *Service) CheckUpdate(lastTM time.Time) ([]UpdateQuery, error) {
-
+	return nil, nil
 }
 
-func (s *Service) AddMessage(req NewMessageRequest) error {
+func (s *Service) AddMessage(req NewMessageRequest) (time.Time, repository.Message, error) {
 
 	tm := time.Now()
 
-	return s.db.NewMessage(req.Uuid, req.Author, req.Message, req.Likes, tm)
+	msg, err := s.db.NewMessage(req.Uuid, req.Author, req.Message, req.Likes, tm)
+
+	return tm, msg, err
 }
 
 func (s *Service) EditMessage(uuid string, req EditMessageRequest) error {

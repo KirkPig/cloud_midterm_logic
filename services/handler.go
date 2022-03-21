@@ -2,7 +2,6 @@ package services
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,11 +18,11 @@ func NewHandler(s Service) *Handler {
 
 func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 
-	i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
-	if err != nil {
-		c.JSON(400, gin.H{})
-	}
-	tm := time.Unix(i, 0)
+	// i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
+	// if err != nil {
+	// 	c.JSON(400, gin.H{})
+	// }
+	// tm := time.Unix(i, 0)
 
 }
 
@@ -38,14 +37,17 @@ func (h *Handler) AddNewMessageHandler(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.AddMessage(req); err != nil {
+	tm, msg, err := h.service.AddMessage(req)
+
+	if err != nil {
 		c.JSON(409, gin.H{
 			"log": err.Error(),
 		})
 		return
 	}
 
-	c.JSON(201, gin.H{})
+	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
+	c.JSON(201, msg)
 
 }
 

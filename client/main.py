@@ -76,7 +76,7 @@ def fetch_update(base_url: str) -> dict:
     return updates
 
 
-def read_records() -> dict[str, dict[str, str]]:
+def read_records() -> dict:
     records = {}
     with open(DATA_FILE, "r", encoding="utf8") as f:
         csvReader = csv.DictReader(f)
@@ -86,7 +86,7 @@ def read_records() -> dict[str, dict[str, str]]:
     return records
 
 
-def sync_records(records: dict[str, dict[str, str]], updates: list[dict]):
+def sync_records(records: dict, updates: list):
     for update in updates:
         uuid = update["uuid"]
         if "isDeleted" in update and update["isDeleted"] and uuid in records:
@@ -100,7 +100,7 @@ def sync_records(records: dict[str, dict[str, str]], updates: list[dict]):
     print(datetime.now().isoformat(), f"Applied {len(updates)} updates to {len(records)} records")
 
 
-def write_records(records: dict[str, dict[str, str]]) -> None:
+def write_records(records: dict) -> None:
     with open(DATA_FILE, "w", encoding="utf8", newline="") as f:
         csvWriter = csv.DictWriter(f, fieldnames=["uuid", "author", "message", "likes"])
         csvWriter.writeheader()

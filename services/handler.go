@@ -88,7 +88,7 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 	}
 
 	log.Println("UpdateMessageHandler: Creating codec")
-	codec, err := goavro.NewCodec(`
+	_, err = goavro.NewCodec(`
 	{
 		"name": "SyncMessage",
 		"namespace": "com.mycorp.mynamespace",
@@ -138,15 +138,16 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 		return
 	}
 
-	log.Println("UpdateMessageHandler: Converting to Avro")
-	binary, err := codec.BinaryFromNative(nil, updateQueryToMap(updates))
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
+	// log.Println("UpdateMessageHandler: Converting to Avro")
+	// binary, err := codec.BinaryFromNative(nil, updateQueryToMap(updates))
+	// if err != nil {
+	// 	c.JSON(500, err.Error())
+	// 	return
+	// }
+	// log.Println("UpdateMessageHandler: Returning Avro")
+	// c.Data(200, "application/octet-stream", binary)
 	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
-	log.Println("UpdateMessageHandler: Returning Avro")
-	c.Data(200, "application/octet-stream", binary)
+	c.JSON(200, updates)
 
 }
 

@@ -55,8 +55,9 @@ def fetch_update(base_url: str, last_sync: int, offset: int, threadNo: int, thre
         print(datetime.now().isoformat(), "Error: %s" % r.status_code)
         sys.exit(1)
 
-    record = deserialize_avro(r.content)
-    threadUpdates[threadNo] = record["updates"]
+    # record = deserialize_avro(r.content)
+    # threadUpdates[threadNo] = record["updates"]
+    threadUpdates[threadNo] = r.json()
     threadLastSyncs[threadNo] = r.headers["Last-Sync"]
     return
 

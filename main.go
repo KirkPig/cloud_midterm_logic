@@ -28,7 +28,8 @@ func main() {
 		api.GET("/messages/:timestamp", apiHandler.UpdateMessageHandler)
 		api.POST("/messages", apiHandler.AddNewMessageHandler)
 		api.PUT("/messages/:uuid", apiHandler.EditMessageHandler)
-		api.DELETE("/messages/:uuid")
+		api.DELETE("/messages/:uuid", apiHandler.DeleteMessageHandler)
+		api.GET("/health", apiHandler.HealthCheck)
 	}
 
 	router.Run(":1323")

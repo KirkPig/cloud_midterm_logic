@@ -108,3 +108,9 @@ func (h *Handler) DeleteMessageHandler(c *gin.Context) {
 	})
 
 }
+
+func (h *Handler) HealthCheck(c *gin.Context) {
+
+	c.JSON(200, "Hello World")
+
+}

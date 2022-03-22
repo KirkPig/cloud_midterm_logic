@@ -118,12 +118,11 @@ func (r *Repository) DeleteMessage(uuid string, tm time.Time) error {
 
 }
 
-func (r *Repository) QueryUpdate(tm time.Time, numberQuery int64, pageNumber int64) ([]Message, error) {
+func (r *Repository) QueryUpdate(tm time.Time, limit int64, offset int64) ([]Message, error) {
 
 	var messages []Message
 	condition := "last_update_author > ? or last_update_message > ? or last_update_likes > ? or last_update_delete > ?"
-	offset := pageNumber * numberQuery
-	err := r.sess.Model(Message{}).Where(condition, tm, tm, tm, tm).Find(&messages).Offset(offset).Limit(numberQuery).Error
+	err := r.sess.Model(Message{}).Where(condition, tm, tm, tm, tm).Offset(offset).Limit(limit).Find(&messages).Error
 	return messages, err
 
 }
@@ -131,6 +130,6 @@ func (r *Repository) QueryUpdate(tm time.Time, numberQuery int64, pageNumber int
 func (r *Repository) QueryUpdateCount(tm time.Time) (int64, error) {
 	var c int64
 	condition := "last_update_author > ? or last_update_message > ? or last_update_likes > ? or last_update_delete > ?"
-	err := r.sess.Model(Message{}).Where(condition, tm, tm, tm, tm).Count(c).Error
+	err := r.sess.Model(Message{}).Where(condition, tm, tm, tm, tm).Count(&c).Error
 	return c, err
 }

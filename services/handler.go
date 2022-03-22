@@ -19,48 +19,46 @@ func NewHandler(s *Service) *Handler {
 	}
 }
 
-func (h *Handler) UpdateMessageCountHandler(c *gin.Context) {
-	i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
+func (h *Handler) CountMessageHandler(c *gin.Context) {
+	t, err := strconv.ParseInt(c.Query("timestamp"), 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"log": err.Error(),
 		})
 		return
 	}
-	tm := time.Unix(i, 0)
+	tm := time.Unix(t, 0)
 
 	cnt, err := h.service.CheckUpdateCount(tm)
-	c.Header("Message-Count", strconv.FormatInt(cnt, 10))
-	c.JSON(200, "")
+	c.String(200, strconv.FormatInt(cnt, 10))
 
 }
 
 func (h *Handler) UpdateMessageHandler(c *gin.Context) {
+	t, err := strconv.ParseInt(c.Query("timestamp"), 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+	limit, err := strconv.ParseInt(c.Query("limit"), 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+	offset, err := strconv.ParseInt(c.Query("offset"), 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+	tm := time.Unix(t, 0)
 
-	i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"log": err.Error(),
-		})
-		return
-	}
-	n, err := strconv.ParseInt(c.Param("number"), 10, 64)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"log": err.Error(),
-		})
-		return
-	}
-	p, err := strconv.ParseInt(c.Param("page"), 10, 64)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"log": err.Error(),
-		})
-		return
-	}
-	tm := time.Unix(i, 0)
-
-	ups, tm, err := h.service.CheckUpdate(tm, n, p)
+	ups, tm, err := h.service.CheckUpdate(tm, limit, offset)
 
 	if err != nil {
 		c.JSON(400, gin.H{

@@ -22,10 +22,10 @@ func (s *Service) CheckUpdateCount(lastTM time.Time) (int64, error) {
 
 }
 
-func (s *Service) CheckUpdate(lastTM time.Time, numberQuery int64, page int64) ([]UpdateQuery, time.Time, error) {
+func (s *Service) CheckUpdate(lastTM time.Time, limit int64, offset int64) ([]UpdateQuery, time.Time, error) {
 
 	tm := time.Now().UTC()
-	msgs, err := s.db.QueryUpdate(lastTM.UTC(), numberQuery, page)
+	msgs, err := s.db.QueryUpdate(lastTM.UTC(), limit, offset)
 
 	if err != nil {
 		return nil, tm, err

@@ -28,7 +28,7 @@ func main() {
 		api.GET("/health", apiHandler.HealthCheck)
 	}
 
-	log.Println("Server started on port 1323")
-	router.Run(":1323")
+	log.Println("Server started on port 80")
+	router.Run(":80")
 
 }

@@ -122,7 +122,7 @@ func (r *Repository) QueryUpdate(tm time.Time, limit int64, offset int64) ([]Mes
 
 	var messages []Message
 	condition := "last_update_author > ? or last_update_message > ? or last_update_likes > ? or last_update_delete > ?"
-	err := r.sess.Model(Message{}).Where(condition, tm, tm, tm, tm).Offset(offset).Limit(limit).Find(&messages).Error
+	err := r.sess.Model(Message{}).Where(condition, tm, tm, tm, tm).Order("uuid ASC").Offset(offset).Limit(limit).Find(&messages).Error
 	return messages, err
 
 }

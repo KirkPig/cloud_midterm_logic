@@ -12,7 +12,7 @@ from datetime import datetime
 
 DATA_FILE = "state.csv"
 METADATA_FILE = "last_sync.conf"
-SYNC_RECORD_LIMIT = 600000
+SYNC_RECORD_LIMIT = 50000
 
 schema = fastavro.parse_schema(json.load(open("avro/sync_message.avsc", "r")))
 

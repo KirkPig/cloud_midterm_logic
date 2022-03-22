@@ -42,8 +42,6 @@ def fetch_message_count(base_url: str, last_sync: int) -> int:
     return int(r.text)
 
 def fetch_update(base_url: str, last_sync: int, offset: int, threadNo: int, threadUpdates: list, threadLastSyncs: list):
-
-
     print(datetime.now().isoformat(), f"Fetching {offset} to {offset + SYNC_RECORD_LIMIT}")
     start = datetime.now()
     r = requests.get(f"{base_url}/messages", params={
@@ -109,12 +107,14 @@ def main():
     with open(METADATA_FILE, "r") as f:
         last_sync = int(f.read())
     count = fetch_message_count(base_url, last_sync)
-    noThreads = math.ceil(count / SYNC_RECORD_LIMIT)
+    if count == 0:
+        return
 
+    noThreads = math.ceil(count / SYNC_RECORD_LIMIT)
     threadUpdates = [None] * noThreads
     threadLastSyncs = [None] * noThreads
     threads: list[threading.Thread] = []
-
+    print(f"Starting {noThreads} threads")
     for threadNo in range(noThreads):
         t = threading.Thread(target=fetch_update, args=(base_url, last_sync, threadNo * SYNC_RECORD_LIMIT, threadNo, threadUpdates, threadLastSyncs))
         t.start()

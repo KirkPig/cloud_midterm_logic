@@ -1,10 +1,12 @@
 package services
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/linkedin/goavro/v2"
 )
 
 type Handler struct {
@@ -37,8 +39,61 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 		return
 	}
 
+	codec, err := goavro.NewCodec(`
+	{
+		"name": "SyncMessage",
+		"namespace": "com.mycorp.mynamespace",
+		"type": "record",
+		"fields": [
+		  {
+			"name": "updates",
+			"type": {
+			  "type": "array",
+			  "items": {
+				"name": "Update",
+				"type": "record",
+				"fields": [
+				  {
+					"name": "uuid",
+					"type": "string"
+				  },
+				  {
+					"name": "author",
+					"type": ["null", "string"],
+					"default": null
+				  },
+				  {
+					"name": "message",
+					"type": ["null", "string"],
+					"default": null
+				  },
+				  {
+					"name": "likes",
+					"type": ["null", "int"],
+					"default": null
+				  },
+				  {
+					"name": "isDeleted",
+					"type": ["null", "bool"],
+					"default": null
+				  },
+				]
+			  }
+			}
+		  }
+		]
+	  }`)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	binary, err := codec.BinaryFromNative(nil, ups)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
-	c.JSON(200, ups)
+	c.JSON(200, binary)
 
 }
 

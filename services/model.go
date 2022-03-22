@@ -14,9 +14,9 @@ type EditMessageRequest struct {
 }
 
 type UpdateQuery struct {
-	Uuid     string `json:"uuid"`
-	Author   string `json:"author,omitempty"`
-	Message  string `json:"message,omitempty"`
-	Likes    int    `json:"likes,omitempty"`
-	IsDelete bool   `json:"isDelete,omitempty"`
+	Uuid      string `json:"uuid"`
+	Author    string `json:"author,omitempty"`
+	Message   string `json:"message,omitempty"`
+	Likes     int    `json:"likes,omitempty"`
+	IsDeleted bool   `json:"isDeleted,omitempty"`
 }

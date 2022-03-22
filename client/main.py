@@ -50,7 +50,6 @@ def fetch_update(base_url: str, last_sync: int, offset: int, threadNo: int, thre
         "offset": offset,
     })
     stop = datetime.now()
-    print(datetime.now().isoformat(), f"Fetched {offset} to {offset + SYNC_RECORD_LIMIT}. Took {(stop - start).total_seconds()} seconds")
     if r.status_code != 200:
         print(datetime.now().isoformat(), "Error: %s" % r.status_code)
         sys.exit(1)
@@ -58,6 +57,7 @@ def fetch_update(base_url: str, last_sync: int, offset: int, threadNo: int, thre
     # record = deserialize_avro(r.content)
     # threadUpdates[threadNo] = record["updates"]
     threadUpdates[threadNo] = r.json()
+    print(datetime.now().isoformat(), f"Fetched {offset} to {offset + SYNC_RECORD_LIMIT}. Took {(stop - start).total_seconds()} seconds. Got {len(threadUpdates[threadNo])} updates")
     threadLastSyncs[threadNo] = r.headers["Last-Sync"]
     return
 

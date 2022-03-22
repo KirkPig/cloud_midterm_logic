@@ -32,7 +32,7 @@
 						},
 						{
 							"name": "isDeleted",
-							"type": ["null", "bool"],
+							"type": ["null", "boolean"],
 							"default": null
 						}
 					]

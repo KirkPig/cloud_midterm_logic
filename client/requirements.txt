@@ -1,2 +1,0 @@
-fastavro==1.4.10
-requests==2.27.1

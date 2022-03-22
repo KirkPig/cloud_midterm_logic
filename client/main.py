@@ -1,25 +1,16 @@
-import json
 import math
 import sys
 import threading
 import requests
 import csv
 import os
-import fastavro
-from io import BytesIO
 from datetime import datetime
 import time
 
 
 DATA_FILE = "state.csv"
 METADATA_FILE = "last_sync.conf"
-SYNC_RECORD_LIMIT = 60000
-
-schema = fastavro.parse_schema(json.load(open("avro/sync_message.avsc", "r")))
-
-def deserialize_avro(content: bytes):
-    record = fastavro.schemaless_reader(BytesIO(content), schema)
-    return record
+SYNC_RECORD_LIMIT = 30000
 
 
 def init_db_if_not_exists():
@@ -55,10 +46,8 @@ def fetch_update(base_url: str, last_sync: int, offset: int, threadNo: int, thre
         print(datetime.now().isoformat(), "Error: %s" % r.status_code)
         sys.exit(1)
 
-    # record = deserialize_avro(r.content)
-    # threadUpdates[threadNo] = record["updates"]
     threadUpdates[threadNo] = r.json()
-    print(datetime.now().isoformat(), f"Fetched {offset} to {offset + SYNC_RECORD_LIMIT}. Took {(stop - start).total_seconds()} seconds. Got {len(threadUpdates[threadNo])} updates")
+    print(datetime.now().isoformat(), f"Fetched {offset} to {offset + SYNC_RECORD_LIMIT}.")
     threadLastSyncs[threadNo] = r.headers["Last-Sync"]
     return
 
@@ -69,7 +58,7 @@ def read_records() -> dict:
         csvReader = csv.DictReader(f)
         for row in csvReader:
             records[row["uuid"]] = row
-    print(datetime.now().isoformat(), f"Read {len(records)} records from {DATA_FILE}")
+    print(datetime.now().isoformat(), f"Read records from {DATA_FILE}")
     return records
 
 def sync_records(records: dict, threadUpdates: list):
@@ -86,8 +75,7 @@ def sync_records(records: dict, threadUpdates: list):
                 if "isDeleted" in update:
                     del update["isDeleted"]
                 records[uuid] = update
-        print(datetime.now().isoformat(), f"Applied {len(updates)} updates. Current record count: {len(records)}")
-    print(datetime.now().isoformat(), f"Applied updates to {len(records)} records")
+    print(datetime.now().isoformat(), f"Applied updates to records")
 
 
 def write_records(records: dict) -> None:
@@ -96,7 +84,7 @@ def write_records(records: dict) -> None:
         csvWriter.writeheader()
         for record in records.values():
             csvWriter.writerow(record)
-        print(datetime.now().isoformat(), f"Wrote {len(records)} records to {DATA_FILE}")
+        print(datetime.now().isoformat(), f"Wrote records to {DATA_FILE}")
 
 
 def main():

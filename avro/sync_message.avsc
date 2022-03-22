@@ -1,0 +1,43 @@
+{
+	"name": "SyncMessage",
+	"namespace": "com.mycorp.mynamespace",
+	"type": "record",
+	"fields": [
+		{
+			"name": "updates",
+			"type": {
+				"type": "array",
+				"items": {
+					"name": "Update",
+					"type": "record",
+					"fields": [
+						{
+							"name": "uuid",
+							"type": "string"
+						},
+						{
+							"name": "author",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "message",
+							"type": ["null", "string"],
+							"default": null
+						},
+						{
+							"name": "likes",
+							"type": ["null", "int"],
+							"default": null
+						},
+						{
+							"name": "isDeleted",
+							"type": ["null", "bool"],
+							"default": null
+						}
+					]
+				}
+			}
+		}
+	]
+}

@@ -8,6 +8,7 @@ import os
 import fastavro
 from io import BytesIO
 from datetime import datetime
+import time
 
 
 DATA_FILE = "state.csv"
@@ -123,6 +124,7 @@ def main():
         t = threading.Thread(target=fetch_update, args=(base_url, last_sync, threadNo * SYNC_RECORD_LIMIT, threadNo, threadUpdates, threadLastSyncs))
         t.start()
         threads.append(t)
+        time.sleep(0.2)
 
     for threadNo in range(noThreads):
         threads[threadNo].join()

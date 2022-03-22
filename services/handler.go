@@ -1,6 +1,7 @@
 package services
 
 import (
+	"log"
 	"strconv"
 	"time"
 
@@ -51,6 +52,7 @@ func (h *Handler) CountMessageHandler(c *gin.Context) {
 }
 
 func (h *Handler) UpdateMessageHandler(c *gin.Context) {
+	log.Println("UpdateMessageHandler: Received request")
 	t, err := strconv.ParseInt(c.Query("timestamp"), 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -74,7 +76,9 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 	}
 	tm := time.Unix(t, 0)
 
+	log.Println("UpdateMessageHandler: Checking updates")
 	updates, tm, err := h.service.CheckUpdate(tm, limit, offset)
+	log.Println("UpdateMessageHandler: Checked updates")
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -83,6 +87,7 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 		return
 	}
 
+	log.Println("UpdateMessageHandler: Creating codec")
 	codec, err := goavro.NewCodec(`
 	{
 		"name": "SyncMessage",
@@ -133,12 +138,14 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 		return
 	}
 
+	log.Println("UpdateMessageHandler: Converting to Avro")
 	binary, err := codec.BinaryFromNative(nil, updateQueryToMap(updates))
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
 	}
 	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
+	log.Println("UpdateMessageHandler: Returning Avro")
 	c.Data(200, "application/octet-stream", binary)
 
 }

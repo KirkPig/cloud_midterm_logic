@@ -6,4 +6,4 @@ services:
     container_name: cloud-midterm
     restart: unless-stopped
     ports:
-      - "1323:1323"
+      - "80:80"

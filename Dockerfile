@@ -11,5 +11,5 @@ COPY . .
 ENV GIN_MODE=release
 RUN go build -o main
 
-EXPOSE 1323
+EXPOSE 80
 CMD ["/app/main"]

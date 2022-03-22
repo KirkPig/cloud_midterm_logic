@@ -26,7 +26,7 @@ func main() {
 		api.PUT("/messages/:uuid", apiHandler.EditMessageHandler)
 		api.DELETE("/messages/:uuid", apiHandler.DeleteMessageHandler)
 		api.GET("/health", apiHandler.HealthCheck)
-		api.GET("/updatecount/:timestamp")
+		api.GET("/updatecount/:timestamp", apiHandler.UpdateMessageCountHandler)
 	}
 
 	log.Println("Server started on port 80")

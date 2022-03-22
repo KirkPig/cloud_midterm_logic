@@ -93,7 +93,7 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 	}
 
 	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
-	c.JSON(200, binary)
+	c.Data(200, "application/octet-stream", binary)
 
 }
 

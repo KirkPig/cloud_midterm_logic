@@ -42,7 +42,7 @@ func NewConnection(config *Config) *gorm.DB {
 
 }
 
-func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time.Time) error {
+func (r *Repository) NewMessage(uuid, author, message string, likes int32, tm time.Time) error {
 
 	m := Message{
 		Uuid:              uuid,
@@ -60,7 +60,7 @@ func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time
 
 }
 
-func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm time.Time) error {
+func (r *Repository) EditMessage(uuid, author, message *string, likes *int32, tm time.Time) error {
 
 	var old Message
 	updateMessage := Message{}

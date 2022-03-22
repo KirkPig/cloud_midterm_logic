@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -17,6 +16,23 @@ func NewHandler(s *Service) *Handler {
 	return &Handler{
 		service: s,
 	}
+}
+
+func updateQueryToMap(updates []UpdateRecord) map[string]interface{} {
+	updateList := make([]map[string]interface{}, 0)
+	for _, up := range updates {
+		updateList = append(updateList, map[string]interface{}{
+			"uuid":      up.Uuid,
+			"author":    map[string]interface{}{"string": up.Author},
+			"message":   map[string]interface{}{"string": up.Message},
+			"likes":     map[string]interface{}{"int": up.Likes},
+			"isDeleted": map[string]interface{}{"boolean": up.IsDeleted},
+		})
+	}
+	updateMap := map[string]interface{}{
+		"updates": updateList,
+	}
+	return updateMap
 }
 
 func (h *Handler) CountMessageHandler(c *gin.Context) {
@@ -58,7 +74,7 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 	}
 	tm := time.Unix(t, 0)
 
-	ups, tm, err := h.service.CheckUpdate(tm, limit, offset)
+	updates, tm, err := h.service.CheckUpdate(tm, limit, offset)
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -73,53 +89,55 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 		"namespace": "com.mycorp.mynamespace",
 		"type": "record",
 		"fields": [
-		  {
-			"name": "updates",
-			"type": {
-			  "type": "array",
-			  "items": {
-				"name": "Update",
-				"type": "record",
-				"fields": [
-				  {
-					"name": "uuid",
-					"type": "string"
-				  },
-				  {
-					"name": "author",
-					"type": ["null", "string"],
-					"default": null
-				  },
-				  {
-					"name": "message",
-					"type": ["null", "string"],
-					"default": null
-				  },
-				  {
-					"name": "likes",
-					"type": ["null", "int"],
-					"default": null
-				  },
-				  {
-					"name": "isDeleted",
-					"type": ["null", "bool"],
-					"default": null
-				  },
-				]
-			  }
+			{
+				"name": "updates",
+				"type": {
+					"type": "array",
+					"items": {
+						"name": "Update",
+						"type": "record",
+						"fields": [
+							{
+								"name": "uuid",
+								"type": "string"
+							},
+							{
+								"name": "author",
+								"type": ["null", "string"],
+								"default": null
+							},
+							{
+								"name": "message",
+								"type": ["null", "string"],
+								"default": null
+							},
+							{
+								"name": "likes",
+								"type": ["null", "int"],
+								"default": null
+							},
+							{
+								"name": "isDeleted",
+								"type": ["null", "boolean"],
+								"default": null
+							}
+						]
+					}
+				}
 			}
-		  }
 		]
-	  }`)
+	}
+	`)
 	if err != nil {
-		fmt.Println(err)
+		c.JSON(500, err.Error())
+		return
 	}
 
-	binary, err := codec.BinaryFromNative(nil, ups)
+	binary, err := codec.BinaryFromNative(nil, updateQueryToMap(updates))
 	if err != nil {
-		fmt.Println(err)
+		c.JSON(500, err.Error())
+		return
 	}
-
 	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
 	c.Data(200, "application/octet-stream", binary)
 

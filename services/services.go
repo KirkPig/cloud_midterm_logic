@@ -22,7 +22,7 @@ func (s *Service) CheckUpdateCount(lastTM time.Time) (int64, error) {
 
 }
 
-func (s *Service) CheckUpdate(lastTM time.Time, limit int64, offset int64) ([]UpdateQuery, time.Time, error) {
+func (s *Service) CheckUpdate(lastTM time.Time, limit int64, offset int64) ([]UpdateRecord, time.Time, error) {
 
 	tm := time.Now().UTC()
 	msgs, err := s.db.QueryUpdate(lastTM.UTC(), limit, offset)
@@ -31,13 +31,10 @@ func (s *Service) CheckUpdate(lastTM time.Time, limit int64, offset int64) ([]Up
 		return nil, tm, err
 	}
 
-	var up []UpdateQuery
+	var updates []UpdateRecord
 
 	for _, e := range msgs {
-
-		println(e.Author, " ", e.Message, " ", e.Likes, " ", e.IsDeleted)
-
-		k := UpdateQuery{}
+		k := UpdateRecord{}
 		k.Uuid = e.Uuid
 
 		if e.IsDeleted && lastTM.UTC().Unix() < e.LastUpdateAuthor.UTC().Unix() {
@@ -56,11 +53,11 @@ func (s *Service) CheckUpdate(lastTM time.Time, limit int64, offset int64) ([]Up
 			k.Likes = e.Likes
 		}
 
-		up = append(up, k)
+		updates = append(updates, k)
 
 	}
 
-	return up, tm, nil
+	return updates, tm, nil
 }
 
 func (s *Service) AddMessage(req NewMessageRequest) (time.Time, error) {
@@ -77,7 +74,7 @@ func (s *Service) EditMessage(uuid string, req EditMessageRequest) (time.Time, e
 	tm := time.Now().UTC()
 	var author *string
 	var message *string
-	var likes *int
+	var likes *int32
 
 	author = nil
 	message = nil

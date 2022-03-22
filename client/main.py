@@ -12,7 +12,7 @@ from datetime import datetime
 
 DATA_FILE = "state.csv"
 METADATA_FILE = "last_sync.conf"
-SYNC_RECORD_LIMIT = 50000
+SYNC_RECORD_LIMIT = 20000
 
 schema = fastavro.parse_schema(json.load(open("avro/sync_message.avsc", "r")))
 
@@ -78,10 +78,12 @@ def sync_records(records: dict, threadUpdates: list):
             if "isDeleted" in update and update["isDeleted"] and uuid in records:
                 del records[uuid]
             elif uuid in records:
-                del update["isDeleted"]
+                if "isDeleted" in update:
+                    del update["isDeleted"]
                 records[uuid].update(update)
             else:
-                del update["isDeleted"]
+                if "isDeleted" in update:
+                    del update["isDeleted"]
                 records[uuid] = update
     print(datetime.now().isoformat(), f"Applied updates to {len(records)} records")
 

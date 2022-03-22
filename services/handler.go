@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/linkedin/goavro/v2"
 )
 
 type Handler struct {
@@ -76,9 +75,9 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 	}
 	tm := time.Unix(t, 0)
 
-	log.Println("UpdateMessageHandler: Checking updates")
+	log.Println("UpdateMessageHandler: Checking updates", offset)
 	updates, tm, err := h.service.CheckUpdate(tm, limit, offset)
-	log.Println("UpdateMessageHandler: Checked updates")
+	log.Println("UpdateMessageHandler: Checked updates", offset)
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -87,65 +86,6 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 		return
 	}
 
-	log.Println("UpdateMessageHandler: Creating codec")
-	_, err = goavro.NewCodec(`
-	{
-		"name": "SyncMessage",
-		"namespace": "com.mycorp.mynamespace",
-		"type": "record",
-		"fields": [
-			{
-				"name": "updates",
-				"type": {
-					"type": "array",
-					"items": {
-						"name": "Update",
-						"type": "record",
-						"fields": [
-							{
-								"name": "uuid",
-								"type": "string"
-							},
-							{
-								"name": "author",
-								"type": ["null", "string"],
-								"default": null
-							},
-							{
-								"name": "message",
-								"type": ["null", "string"],
-								"default": null
-							},
-							{
-								"name": "likes",
-								"type": ["null", "int"],
-								"default": null
-							},
-							{
-								"name": "isDeleted",
-								"type": ["null", "boolean"],
-								"default": null
-							}
-						]
-					}
-				}
-			}
-		]
-	}
-	`)
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	// log.Println("UpdateMessageHandler: Converting to Avro")
-	// binary, err := codec.BinaryFromNative(nil, updateQueryToMap(updates))
-	// if err != nil {
-	// 	c.JSON(500, err.Error())
-	// 	return
-	// }
-	// log.Println("UpdateMessageHandler: Returning Avro")
-	// c.Data(200, "application/octet-stream", binary)
 	c.Header("Last-Sync", strconv.FormatInt(tm.Unix(), 10))
 	c.JSON(200, updates)
 

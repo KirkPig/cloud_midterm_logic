@@ -19,8 +19,7 @@ func NewHandler(s *Service) *Handler {
 	}
 }
 
-func (h *Handler) UpdateMessageHandler(c *gin.Context) {
-
+func (h *Handler) UpdateMessageCountHandler(c *gin.Context) {
 	i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -30,7 +29,38 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 	}
 	tm := time.Unix(i, 0)
 
-	ups, tm, err := h.service.CheckUpdate(tm)
+	cnt, err := h.service.CheckUpdateCount(tm)
+	c.Header("Message-Count", strconv.FormatInt(cnt, 10))
+	c.JSON(200, "")
+
+}
+
+func (h *Handler) UpdateMessageHandler(c *gin.Context) {
+
+	i, err := strconv.ParseInt(c.Param("timestamp"), 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+	n, err := strconv.ParseInt(c.Param("number"), 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+	p, err := strconv.ParseInt(c.Param("page"), 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"log": err.Error(),
+		})
+		return
+	}
+	tm := time.Unix(i, 0)
+
+	ups, tm, err := h.service.CheckUpdate(tm, n, p)
 
 	if err != nil {
 		c.JSON(400, gin.H{

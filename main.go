@@ -21,11 +21,12 @@ func main() {
 	apiHandler := services.NewHandler(service)
 	api := router.Group("/api")
 	{
-		api.GET("/messages/:timestamp", apiHandler.UpdateMessageHandler)
+		api.GET("/messages/:timestamp/:numbers/:page", apiHandler.UpdateMessageHandler)
 		api.POST("/messages", apiHandler.AddNewMessageHandler)
 		api.PUT("/messages/:uuid", apiHandler.EditMessageHandler)
 		api.DELETE("/messages/:uuid", apiHandler.DeleteMessageHandler)
 		api.GET("/health", apiHandler.HealthCheck)
+		api.GET("/updatecount/:timestamp")
 	}
 
 	log.Println("Server started on port 80")

@@ -1,0 +1,31 @@
+{
+  "name": "sync_message",
+  "namespace": "com.mycorp.mynamespace",
+  "type": "record",
+  "fields": [
+    {
+      "name": "uuid",
+      "type": "string"
+    },
+    {
+      "name": "author",
+      "type": ["string", "null"],
+      "default": null
+    },
+    {
+      "name": "message",
+      "type": ["string", "null"],
+      "default": null
+    },
+    {
+      "name": "likes",
+      "type": ["int", "null"],
+      "default": null
+    },
+    {
+      "name": "isDelete",
+      "type": ["bool", "null"],
+      "default": null
+    },
+  ]
+}

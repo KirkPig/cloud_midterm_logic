@@ -26,9 +26,10 @@ type Config struct {
 	Dbname   string `mapstructure:"dbname"`
 }
 
-func New(config *Config) *gorm.DB {
+func NewConnection(config *Config) *gorm.DB {
 
 	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", config.Host, config.Port, config.User, config.Dbname, config.Password)
+	log.Println("connecting to db...")
 	conn, err := gorm.Open("postgres", connStr)
 
 	if err != nil {
@@ -36,8 +37,6 @@ func New(config *Config) *gorm.DB {
 	}
 
 	log.Println("db connected!! 🎉")
-	conn.AutoMigrate(&Message{})
-	log.Println("auto migrate enabled!! 🎉")
 
 	return conn
 

@@ -7,10 +7,10 @@ import (
 )
 
 type Service struct {
-	db repository.Repository
+	db *repository.Repository
 }
 
-func NewService(db repository.Repository) *Service {
+func NewService(db *repository.Repository) *Service {
 	return &Service{
 		db: db,
 	}

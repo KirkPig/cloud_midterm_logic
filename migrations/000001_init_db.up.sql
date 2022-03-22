@@ -1,2 +1,0 @@
-DROP DATABASE IF EXISTS message_sync;
-CREATE DATABASE message_sync;

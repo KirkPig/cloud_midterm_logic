@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/KirkPig/cloud_midterm_logic/config"
 	"github.com/KirkPig/cloud_midterm_logic/repository"
+	"github.com/KirkPig/cloud_midterm_logic/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -20,6 +21,15 @@ func main() {
 	corsConfig.AllowHeaders = []string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"}
 
 	router.Use(cors.New(corsConfig))
+
+	apiHandler := services.NewHandler(*services.NewService(*repository.NewRepository(repository.New(&config.InitConfig().Postgres))))
+	api := router.Group("/api")
+	{
+		api.GET("/messages/:timestamp", apiHandler.UpdateMessageHandler)
+		api.POST("/messages", apiHandler.AddNewMessageHandler)
+		api.PUT("/messages/:uuid", apiHandler.EditMessageHandler)
+		api.DELETE("/messages/:uuid")
+	}
 
 	router.Run(":1323")
 

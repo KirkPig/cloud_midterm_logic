@@ -16,10 +16,16 @@ func NewService(db *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CheckUpdate(lastTM time.Time) ([]UpdateQuery, time.Time, error) {
+func (s *Service) CheckUpdateCount(lastTM time.Time) (int64, error) {
+
+	return s.db.QueryUpdateCount(lastTM)
+
+}
+
+func (s *Service) CheckUpdate(lastTM time.Time, numberQuery int64, page int64) ([]UpdateQuery, time.Time, error) {
 
 	tm := time.Now().UTC()
-	msgs, err := s.db.QueryUpdate(lastTM.UTC())
+	msgs, err := s.db.QueryUpdate(lastTM.UTC(), numberQuery, page)
 
 	if err != nil {
 		return nil, tm, err

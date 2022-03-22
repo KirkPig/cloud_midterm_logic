@@ -1,5 +1,7 @@
 import json
+import math
 import sys
+import threading
 import requests
 import csv
 import os
@@ -39,41 +41,26 @@ def fetch_message_count(base_url: str, last_sync: int) -> int:
     })
     return int(r.text)
 
-def fetch_update(base_url: str) -> dict:
-    with open(METADATA_FILE, "r") as f:
-        last_sync = int(f.read())
+def fetch_update(base_url: str, last_sync: int, offset: int, threadNo: int, threadUpdates: list, threadLastSyncs: list):
 
-    count = fetch_message_count(base_url, last_sync)
-    print(datetime.now().isoformat(), "Total update count:", count)
 
-    updates = []
-    offset = 0
-    new_last_sync = last_sync
-    while offset < count:
-        print(datetime.now().isoformat(), f"Fetching {offset} to {offset + SYNC_RECORD_LIMIT}")
-        start = datetime.now()
-        r = requests.get(f"{base_url}/messages", params={
-            "timestamp": last_sync,
-            "limit": SYNC_RECORD_LIMIT,
-            "offset": offset,
-        })
-        stop = datetime.now()
-        print(datetime.now().isoformat(), f"Fetched {offset} to {offset + SYNC_RECORD_LIMIT}. Took {(stop - start).total_seconds()} seconds")
-        if r.status_code != 200:
-            print(datetime.now().isoformat(), "Error: %s" % r.status_code)
-            sys.exit(1)
-        record = deserialize_avro(r.content)
-        updates.extend(record["updates"])
-        
-        offset += SYNC_RECORD_LIMIT
+    print(datetime.now().isoformat(), f"Fetching {offset} to {offset + SYNC_RECORD_LIMIT}")
+    start = datetime.now()
+    r = requests.get(f"{base_url}/messages", params={
+        "timestamp": last_sync,
+        "limit": SYNC_RECORD_LIMIT,
+        "offset": offset,
+    })
+    stop = datetime.now()
+    print(datetime.now().isoformat(), f"Fetched {offset} to {offset + SYNC_RECORD_LIMIT}. Took {(stop - start).total_seconds()} seconds")
+    if r.status_code != 200:
+        print(datetime.now().isoformat(), "Error: %s" % r.status_code)
+        sys.exit(1)
 
-        new_last_sync = r.headers["Last-Sync"]
-    last_sync = new_last_sync
-
-    with open(METADATA_FILE, "w") as f:
-        f.write(str(last_sync))
-        
-    return updates
+    record = deserialize_avro(r.content)
+    threadUpdates[threadNo] = record["updates"]
+    threadLastSyncs[threadNo] = r.headers["Last-Sync"]
+    return
 
 
 def read_records() -> dict:
@@ -85,19 +72,19 @@ def read_records() -> dict:
     print(datetime.now().isoformat(), f"Read {len(records)} records from {DATA_FILE}")
     return records
 
-
-def sync_records(records: dict, updates: list):
-    for update in updates:
-        uuid = update["uuid"]
-        if "isDeleted" in update and update["isDeleted"] and uuid in records:
-            del records[uuid]
-        elif uuid in records:
-            del update["isDeleted"]
-            records[uuid].update(update)
-        else:
-            del update["isDeleted"]
-            records[uuid] = update
-    print(datetime.now().isoformat(), f"Applied {len(updates)} updates to {len(records)} records")
+def sync_records(records: dict, threadUpdates: list):
+    for updates in threadUpdates:
+        for update in updates:
+            uuid = update["uuid"]
+            if "isDeleted" in update and update["isDeleted"] and uuid in records:
+                del records[uuid]
+            elif uuid in records:
+                del update["isDeleted"]
+                records[uuid].update(update)
+            else:
+                del update["isDeleted"]
+                records[uuid] = update
+    print(datetime.now().isoformat(), f"Applied updates to {len(records)} records")
 
 
 def write_records(records: dict) -> None:
@@ -117,10 +104,29 @@ def main():
     base_url = sys.argv[1]
 
     init_db_if_not_exists()
-
     records = read_records()
-    updates = fetch_update(base_url)
-    sync_records(records, updates)
+
+    with open(METADATA_FILE, "r") as f:
+        last_sync = int(f.read())
+    count = fetch_message_count(base_url, last_sync)
+    noThreads = math.ceil(count / SYNC_RECORD_LIMIT)
+
+    threadUpdates = [None] * noThreads
+    threadLastSyncs = [None] * noThreads
+    threads: list[threading.Thread] = []
+
+    for threadNo in range(noThreads):
+        t = threading.Thread(target=fetch_update, args=(base_url, last_sync, threadNo * SYNC_RECORD_LIMIT, threadNo, threadUpdates, threadLastSyncs))
+        t.start()
+        threads.append(t)
+
+    for threadNo in range(noThreads):
+        threads[threadNo].join()
+
+    with open(METADATA_FILE, "w") as f:
+        f.write(str(threadLastSyncs[-1]))
+
+    sync_records(records, threadUpdates)
     write_records(records)
 
 

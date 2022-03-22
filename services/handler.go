@@ -77,7 +77,7 @@ func (h *Handler) UpdateMessageHandler(c *gin.Context) {
 
 	log.Println("UpdateMessageHandler: Checking updates", offset)
 	updates, tm, err := h.service.CheckUpdate(tm, limit, offset)
-	log.Println("UpdateMessageHandler: Checked updates", offset)
+	log.Println("UpdateMessageHandler: Checked updates", offset, len(updates), "records")
 
 	if err != nil {
 		c.JSON(400, gin.H{

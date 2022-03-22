@@ -63,8 +63,8 @@ func (r *Repository) NewMessage(uuid, author, message string, likes int, tm time
 
 func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm time.Time) error {
 
-	var err error
 	var old Message
+	updateMessage := Message{}
 
 	r.sess.Model(Message{}).Where(&Message{
 		Uuid: *uuid,
@@ -74,16 +74,8 @@ func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm t
 
 		if old.Author != *author {
 
-			err = r.sess.Model(Message{}).Where(&Message{
-				Uuid: *uuid,
-			}).Update(&Message{
-				Author:           *author,
-				LastUpdateAuthor: &tm,
-			}).Error
-
-			if err != nil {
-				return err
-			}
+			updateMessage.Author = *author
+			updateMessage.LastUpdateAuthor = &tm
 
 		}
 
@@ -93,16 +85,8 @@ func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm t
 
 		if old.Message != *message {
 
-			err := r.sess.Model(Message{}).Where(&Message{
-				Uuid: *uuid,
-			}).Update(&Message{
-				Message:           *message,
-				LastUpdateMessage: &tm,
-			}).Error
-
-			if err != nil {
-				return err
-			}
+			updateMessage.Message = *message
+			updateMessage.LastUpdateMessage = &tm
 
 		}
 
@@ -112,22 +96,15 @@ func (r *Repository) EditMessage(uuid, author, message *string, likes *int, tm t
 
 		if old.Likes != *likes {
 
-			err := r.sess.Model(Message{}).Where(&Message{
-				Uuid: *uuid,
-			}).Update(&Message{
-				Likes:           *likes,
-				LastUpdateLikes: &tm,
-			}).Error
-
-			if err != nil {
-				return err
-			}
-
+			updateMessage.Likes = *likes
+			updateMessage.LastUpdateLikes = &tm
 		}
 
 	}
 
-	return nil
+	return r.sess.Model(Message{}).Where(&Message{
+		Uuid: *uuid,
+	}).Update(updateMessage).Error
 
 }
 

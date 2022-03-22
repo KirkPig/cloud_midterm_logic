@@ -3,8 +3,8 @@ import csv
 import requests
 from urllib.parse import urljoin
 
-baseUrl = ""
-filename = ""
+baseUrl = "http://18.236.152.137/api/"
+filename = "sample.csv"
 
 
 def deleteMessage(data):
@@ -49,7 +49,7 @@ def main():
             if retryCounter == 10:
                 raise Exception("Message failed to send")
 
-            if row["action"] == "create":
+            if "action" not in row or row["action"] == "create":
                 response = createMessage(row)
                 if response.status_code == 201 or response.status_code == 409:
                     print("Row", rowCounter, "sent!")
@@ -103,6 +103,6 @@ def main():
 
 
 if __name__ == "__main__":
-    filename = input("Filename : ")
-    baseUrl = input("Base URL with trailing / (e.g. http://10.2.110.61/api/) : ")
+    filename = input("Filename: ")
+    # baseUrl = input("Base URL with trailing / (e.g. http://10.2.110.61/api/) : ")
     main()

@@ -5,7 +5,7 @@ import csv
 import os
 
 
-DATA_FILE = "db.csv"
+DATA_FILE = "state.csv"
 METADATA_FILE = "last_sync.conf"
 
 
@@ -22,11 +22,11 @@ def init_db_if_not_exists():
             f.write("0")
 
 
-def fetch_update(url: str) -> dict:
+def fetch_update(base_url: str) -> dict:
     with open(METADATA_FILE, "r") as f:
         last_sync = int(f.read())
 
-    r = requests.get(url, params={"last_sync": last_sync})
+    r = requests.get(f"{base_url}/messages/{last_sync}")
     if r.status_code != 200:
         print("Error: %s" % r.status_code)
         sys.exit(1)
@@ -65,14 +65,14 @@ def write_records(records: dict[str, dict[str, str]]) -> None:
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: ./main.py <URL>")
+        print("Usage: ./main.py <BASE_URL>")
         sys.exit(1)
-    url = sys.argv[1]
+    base_url = sys.argv[1]
 
     init_db_if_not_exists()
 
     records = read_records()
-    updates = fetch_update(url)
+    updates = fetch_update(base_url)
     sync_records(records, updates)
     write_records(records)
 

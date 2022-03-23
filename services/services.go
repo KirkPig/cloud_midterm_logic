@@ -37,7 +37,7 @@ func (s *Service) CheckUpdate(lastTM time.Time, limit int64, offset int64) ([]Up
 		k := UpdateRecord{}
 		k.Uuid = e.Uuid
 
-		if e.IsDeleted && lastTM.UTC().Unix() < e.LastUpdateAuthor.UTC().Unix() {
+		if e.IsDeleted && lastTM.UTC().Unix() < e.LastUpdateDelete.UTC().Unix() {
 			k.IsDeleted = e.IsDeleted
 		}
 
